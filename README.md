@@ -1,172 +1,36 @@
-# Expense Tracker Monorepo
-
-A full-stack expense tracking application built with Next.js and NestJS, managed with Turborepo.
-
-## Project Structure
-
-```
-.
-├── apps/
-│   ├── web/          # Next.js frontend application
-│   └── api/          # NestJS backend API
-├── packages/
-│   └── shared-types/ # Shared TypeScript types and DTOs
-├── turbo.json        # Turborepo configuration
-└── package.json      # Root package.json
-```
-
-## Prerequisites
-
-**Option 1: Local Development**
-- Node.js >= 20.0.0
-- pnpm >= 9.0.0
-- MySQL or PostgreSQL
-
-**Option 2: Docker (Recommended)**
-- Docker Engine 20.10+
-- Docker Compose v2.0+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
-### 🐳 Docker Setup (Recommended)
-
-See [DOCKER_SETUP.md](./DOCKER_SETUP.md) for detailed instructions.
-
-**Quick Start:**
+First, run the development server:
 
 ```bash
-# 1. Create environment file
-cp .env.docker .env
-
-# 2. Start all services
-docker-compose up -d
-
-# 3. Run migrations
-docker-compose exec api pnpm migration:run
-
-# 4. Access the apps
-# Web: http://localhost:3000
-# API: http://localhost:3001
-```
-
-### 💻 Local Development Setup
-
-### 1. Install pnpm (if not already installed)
-
-```bash
-npm install -g pnpm@9
-```
-
-### 2. Install dependencies
-
-```bash
-pnpm install
-```
-
-### 3. Setup environment variables
-
-Create `.env` files in both `apps/web` and `apps/api` directories. Use the `.env.example` files as templates.
-
-### 4. Run database migrations (API)
-
-```bash
-cd apps/api
-pnpm migration:run
-```
-
-### 5. Development
-
-Run both apps in development mode:
-
-```bash
-# From root directory
+npm run dev
+# or
+yarn dev
+# or
 pnpm dev
+# or
+bun dev
 ```
 
-Or run individually:
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-```bash
-# Frontend only
-cd apps/web
-pnpm dev
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-# API only
-cd apps/api
-pnpm dev
-```
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Available Scripts
+## Learn More
 
-### Root Level
+To learn more about Next.js, take a look at the following resources:
 
-- `pnpm dev` - Start all apps in development mode
-- `pnpm build` - Build all apps
-- `pnpm lint` - Lint all apps
-- `pnpm test` - Run tests for all apps
-- `pnpm clean` - Clean all build artifacts and node_modules
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### Web App (apps/web)
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-- `pnpm dev` - Start Next.js development server
-- `pnpm build` - Build for production
-- `pnpm start` - Start production server
-- `pnpm lint` - Run ESLint
+## Deploy on Vercel
 
-### API (apps/api)
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-- `pnpm dev` - Start NestJS in watch mode
-- `pnpm build` - Build for production
-- `pnpm start:prod` - Start production server
-- `pnpm test` - Run tests
-- `pnpm migration:generate` - Generate new migration
-- `pnpm migration:run` - Run migrations
-- `pnpm seed:dev` - Seed database with development data
-
-## Shared Types
-
-The `@expense-tracker/shared-types` package contains TypeScript interfaces and DTOs shared between the frontend and backend. This ensures type safety across the entire application.
-
-Import shared types like this:
-
-```typescript
-import { User, Expense, CreateExpenseDto } from '@expense-tracker/shared-types';
-```
-
-## Tech Stack
-
-- **Frontend**: Next.js 16, React 18, TailwindCSS, Radix UI
-- **Backend**: NestJS, TypeORM, PostgreSQL/MySQL
-- **Monorepo**: Turborepo, pnpm workspaces
-- **Authentication**: JWT
-
-## Development Workflow
-
-1. Make changes in the appropriate app or shared package
-2. Turborepo will automatically detect changes and rebuild dependencies
-3. Changes to `shared-types` will trigger rebuilds in apps that depend on it
-
-## Database Migrations
-
-Database logic and migrations are handled exclusively in the API (`apps/api`). The frontend communicates with the database through API endpoints only.
-
-To create a new migration:
-
-```bash
-cd apps/api
-pnpm migration:generate src/migrations/MigrationName
-```
-
-## Building for Production
-
-```bash
-# Build all apps
-pnpm build
-
-# Build specific app
-pnpm --filter @expense-tracker/web build
-pnpm --filter @expense-tracker/api build
-```
-
-## License
-
-MIT
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
