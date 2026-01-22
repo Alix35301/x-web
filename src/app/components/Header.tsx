@@ -5,7 +5,7 @@ import UserProfile from './UserProfile';
 
 interface HeaderProps {
   isMenuOpen: boolean;
-  onToggleMenu: () => void;
+  onToggleMenu?: () => void;
 }
 
 export default function Header({ isMenuOpen, onToggleMenu = () => {}}: HeaderProps) {
