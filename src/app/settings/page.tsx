@@ -17,11 +17,11 @@ interface SettingsSection {
 }
 
 export default function SettingsPage() {
-  const { user, signOut } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await logout();
     } catch (error) {
       console.error('Failed to sign out:', error);
     }
