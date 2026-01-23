@@ -29,6 +29,8 @@ COPY --from=deps /app/packages ./packages
 # Copy source files
 COPY apps/web ./apps/web
 COPY package.json pnpm-workspace.yaml ./
+# Copy root .env for build-time configuration (Next.js needs NEXT_PUBLIC_* at build time)
+COPY .env ./apps/web/.env
 
 WORKDIR /app/apps/web
 
