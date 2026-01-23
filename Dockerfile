@@ -29,17 +29,18 @@ COPY --from=deps /app/packages ./packages
 # Copy source files
 COPY apps/web ./apps/web
 COPY package.json pnpm-workspace.yaml ./
-# Copy root .env for build-time configuration (Next.js needs NEXT_PUBLIC_* at build time)
-COPY .env ./apps/web/.env
 
 WORKDIR /app/apps/web
+
+# Build args for NEXT_PUBLIC_* variables (required at build time)
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 # Build Next.js application
-# Note: Add `output: 'standalone'` to next.config.js for this to work properly
 RUN pnpm build
 
 # Stage 3: Runner
