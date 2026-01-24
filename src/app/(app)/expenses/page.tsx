@@ -121,7 +121,7 @@ const expensePage = () => {
           {expenses?.data?.map((data: any, index: any) => (
             <TableRow key={index}>
               <TableCell>{data.date}</TableCell>
-              <TableCell>{data.note}</TableCell>
+              <TableCell>{data.description}</TableCell>
               <TableCell>RF {data.amount}</TableCell>
               <TableCell className="flex gap-4 flex-end">
                 <Button onClick={() => openEditForm(data)} variant="outline">
