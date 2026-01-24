@@ -45,7 +45,7 @@ const expensePage = () => {
   useEffect(() => {
     const fetchExpenses = async () => {
       const expenses = await fetch(
-        "/api/expenses?filter[search]=" + search + "&limit=10&page=1"
+        "/api/expenses?search=" + search + "&limit=10&page=1"
       );
       const data = await expenses.json();
       setExpenses(data);
@@ -58,9 +58,9 @@ const expensePage = () => {
   useEffect(() => {
     const fetchExpenses = async () => {
       const expenses = await fetch(
-        "/api/expenses?filter[start_date]=" +
+        "/api/expenses?start_date=" +
           dayjs(startDate).format("YYYY-MM-DD") +
-          "&filter[end_date]=" +
+          "&end_date=" +
           dayjs(endDate).format("YYYY-MM-DD") +
           "&limit=10&page=1"
       );
