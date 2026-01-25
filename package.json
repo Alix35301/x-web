@@ -1,5 +1,5 @@
 {
-  "name": "@expense-tracker/web",
+  "name": "expense-tracker-web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,10 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clean": "rm -rf .next node_modules"
+    "clean": "rm -rf .next node_modules",
+    "docker:build": "docker build -t expense-tracker-web .",
+    "docker:run": "docker-compose up"
   },
   "dependencies": {
-    "@expense-tracker/shared-types": "workspace:*",
     "@hookform/resolvers": "^5.2.2",
     "clsx": "^2.1.1",
     "@radix-ui/react-dialog": "^1.1.15",
