@@ -4,13 +4,14 @@ import apiClient from "@/lib/api-client";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieHeader = getCookieHeader(request);
     const body = await request.json();
+    const { id } = await params;
 
-    const data = await apiClient.patch(`/api/bank-import/category-rules/${params.id}`, body, { cookieHeader });
+    const data = await apiClient.patch(`/api/bank-import/category-rules/${id}`, body, { cookieHeader });
     return NextResponse.json(data);
   } catch (error) {
     return handleApiError(error, 'Failed to update category rule');
@@ -19,12 +20,13 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieHeader = getCookieHeader(request);
+    const { id } = await params;
 
-    const data = await apiClient.delete(`/api/bank-import/category-rules/${params.id}`, { cookieHeader });
+    const data = await apiClient.delete(`/api/bank-import/category-rules/${id}`, { cookieHeader });
     return NextResponse.json(data);
   } catch (error) {
     return handleApiError(error, 'Failed to delete category rule');
