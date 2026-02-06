@@ -14,6 +14,12 @@ export async function middleware(req: NextRequest) {
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
+  // Redirect root to login or dashboard
+  if (pathname === "/") {
+    const redirectUrl = new URL(sessionToken ? "/dashboard" : "/login", req.url);
+    return NextResponse.redirect(redirectUrl);
+  }
+
   // Redirect to login if accessing protected route without token
   if (isProtectedRoute && !sessionToken) {
     const loginUrl = new URL("/login", req.url);
