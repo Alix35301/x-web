@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3000:3000"
+    container_name: exp_web
+    networks:
+      - traefik-proxy
+    labels:
+      - "traefik.docker.network=traefik-proxy"
+      - "traefik.enable=true"
+      - "traefik.http.routers.expense-web.rule=Host(`expense.ali6ssan.net`)"
+      - "traefik.http.routers.expense-web.tls=true"
+      - "traefik.http.routers.expense-web.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.expense-web.entrypoints=websecure"
+      - "traefik.http.services.expense-web.loadbalancer.server.port=3000"
+    restart: unless-stopped
+
+networks:
+  traefik-proxy:
+    external: true

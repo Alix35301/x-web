@@ -29,3 +29,18 @@ export async function POST(request: NextRequest) {
     return handleApiError(error, 'Failed to create expense');
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const cookieHeader = getCookieHeader(request);
+    const body = await request.json();
+
+    const data = await apiClient.delete('/api/expense/bulk', {
+      cookieHeader,
+      body
+    });
+    return NextResponse.json(data);
+  } catch (error) {
+    return handleApiError(error, 'Failed to delete expenses');
+  }
+}

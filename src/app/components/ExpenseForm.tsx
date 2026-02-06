@@ -156,7 +156,7 @@ const ExpenseForm = ({
                     </SelectTrigger>
                     <SelectContent>
                       {categories?.data?.map((category: any, index: any) => (
-                        <SelectItem key={index} value={category.id}>
+                        <SelectItem key={index} value={String(category.id)}>
                           {category.name}
                         </SelectItem>
                       ))}

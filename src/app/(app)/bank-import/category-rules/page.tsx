@@ -62,13 +62,13 @@ export default function CategoryRulesPage() {
   const fetchRules = async () => {
     const response = await fetch("/api/bank-import/category-rules");
     const data = await response.json();
-    setRules(data);
+    setRules(Array.isArray(data) ? data : data.data || []);
   };
 
   const fetchCategories = async () => {
     const response = await fetch("/api/categories");
     const data = await response.json();
-    setCategories(data);
+    setCategories(Array.isArray(data) ? data : data.data || []);
   };
 
   useEffect(() => {

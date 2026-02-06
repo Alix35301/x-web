@@ -1,6 +1,7 @@
 interface RequestOptions {
   headers?: Record<string, string>;
   cookieHeader?: string;
+  body?: Record<string, any>;
 }
 
 class ApiClient {
@@ -11,6 +12,7 @@ class ApiClient {
   }
 
   private getHeaders(cookieHeader?: string, additionalHeaders?: Record<string, string>): Record<string, string> {
+    console.log("headers!!!")
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...additionalHeaders,
@@ -54,7 +56,8 @@ class ApiClient {
 
   async post<T = any>(endpoint: string, data?: Record<string, any>, options?: RequestOptions): Promise<T> {
     const headers = this.getHeaders(options?.cookieHeader, options?.headers);
-
+    console.log('hi')
+    console.log(this.baseURL)
     const response = await fetch(`${this.baseURL}${endpoint}`, {
       method: 'POST',
       headers,
@@ -97,6 +100,7 @@ class ApiClient {
     const response = await fetch(`${this.baseURL}${endpoint}`, {
       method: 'DELETE',
       headers,
+      body: options?.body ? JSON.stringify(options.body) : undefined,
       credentials: 'include',
     });
 

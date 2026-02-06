@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { User, ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import {
@@ -10,9 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import ChangePasswordDialog from "./ChangePasswordDialog";
 
 export default function UserProfile() {
   const { user, logout, loading } = useAuth();
+  const [changePasswordOpen, setChangePasswordOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -60,10 +63,17 @@ export default function UserProfile() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setChangePasswordOpen(true)}>
+            Change Password
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleSignOut}>Sign out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <ChangePasswordDialog
+        open={changePasswordOpen}
+        onOpenChange={setChangePasswordOpen}
+      />
     </div>
   );
 }

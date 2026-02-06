@@ -59,7 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
       });
 
+
       if (!response.ok) {
+        console.log(response)
         const error = await response.json();
         throw new Error(error.error || 'Login failed');
       }
@@ -68,8 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       router.push('/dashboard');
     } catch (error) {
-      console.error('Login error:', error);
-      throw error;
+      // console.error('Login error:', error);
+      // throw error;
     }
   };
 

@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -28,6 +29,11 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+
+interface AccountType {
+  value: string;
+  label: string;
+}
 
 interface BankAccount {
   id: number;
@@ -41,12 +47,13 @@ interface BankAccount {
 
 export default function BankAccountsPage() {
   const [accounts, setAccounts] = useState<BankAccount[]>([]);
+  const [accountTypes, setAccountTypes] = useState<AccountType[]>([]);
   const [open, setOpen] = useState(false);
   const [selectedAccount, setSelectedAccount] = useState<BankAccount | null>(null);
   const [formData, setFormData] = useState({
     bankName: "",
     accountName: "",
-    accountType: "CHECKING",
+    accountType: "SAVING",
     accountNumberLast4: "",
     csvConfig: {
       delimiter: ",",
@@ -55,10 +62,13 @@ export default function BankAccountsPage() {
         date: 0,
         description: 1,
         amount: 2,
+        type: undefined as number | undefined,
       },
       dateFormat: "YYYY-MM-DD",
     },
   });
+  const [filterInclude, setFilterInclude] = useState("");
+  const [filterExclude, setFilterExclude] = useState("");
 
   const fetchAccounts = async () => {
     const response = await fetch("/api/bank-import/accounts");
@@ -66,8 +76,15 @@ export default function BankAccountsPage() {
     setAccounts(data);
   };
 
+  const fetchAccountTypes = async () => {
+    const response = await fetch("/api/bank-import/config/account-types");
+    const data = await response.json();
+    setAccountTypes(data);
+  };
+
   useEffect(() => {
     fetchAccounts();
+    fetchAccountTypes();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -79,10 +96,29 @@ export default function BankAccountsPage() {
 
     const method = selectedAccount ? "PATCH" : "POST";
 
+    // Build filters object from comma-separated inputs
+    const filters: Record<string, { include?: string[]; exclude?: string[] }> = {};
+    const includeValues = filterInclude.split(",").map(s => s.trim()).filter(Boolean);
+    const excludeValues = filterExclude.split(",").map(s => s.trim()).filter(Boolean);
+
+    if (includeValues.length > 0 || excludeValues.length > 0) {
+      filters.type = {};
+      if (includeValues.length > 0) filters.type.include = includeValues;
+      if (excludeValues.length > 0) filters.type.exclude = excludeValues;
+    }
+
+    const payload = {
+      ...formData,
+      csvConfig: {
+        ...formData.csvConfig,
+        ...(Object.keys(filters).length > 0 && { filters }),
+      },
+    };
+
     await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(payload),
     });
 
     setOpen(false);
@@ -107,6 +143,10 @@ export default function BankAccountsPage() {
       accountNumberLast4: account.account_number_last4 || "",
       csvConfig: account.csv_config,
     });
+    // Load existing filters
+    const typeFilter = account.csv_config?.filters?.type;
+    setFilterInclude(typeFilter?.include?.join(", ") || "");
+    setFilterExclude(typeFilter?.exclude?.join(", ") || "");
     setOpen(true);
   };
 
@@ -114,7 +154,7 @@ export default function BankAccountsPage() {
     setFormData({
       bankName: "",
       accountName: "",
-      accountType: "CHECKING",
+      accountType: "SAVING",
       accountNumberLast4: "",
       csvConfig: {
         delimiter: ",",
@@ -123,10 +163,13 @@ export default function BankAccountsPage() {
           date: 0,
           description: 1,
           amount: 2,
+          type: undefined,
         },
         dateFormat: "YYYY-MM-DD",
       },
     });
+    setFilterInclude("");
+    setFilterExclude("");
   };
 
   const handleOpenChange = (isOpen: boolean) => {
@@ -149,14 +192,15 @@ export default function BankAccountsPage() {
                 Add Account
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
+            <DialogContent className="max-w-2xl p-0">
+              <DialogHeader className="px-6 pt-6 pb-4">
                 <DialogTitle>
                   {selectedAccount ? "Edit Bank Account" : "Add Bank Account"}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
+              <ScrollArea className="h-[60vh] px-6">
+              <form onSubmit={handleSubmit} className="space-y-6 pb-6">
+                <div className="space-y-2">
                   <Label htmlFor="bankName">Bank Name *</Label>
                   <Input
                     id="bankName"
@@ -168,7 +212,7 @@ export default function BankAccountsPage() {
                   />
                 </div>
 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="accountName">Account Name</Label>
                   <Input
                     id="accountName"
@@ -180,7 +224,7 @@ export default function BankAccountsPage() {
                   />
                 </div>
 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="accountType">Account Type *</Label>
                   <Select
                     value={formData.accountType}
@@ -192,15 +236,16 @@ export default function BankAccountsPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="CHECKING">Checking</SelectItem>
-                      <SelectItem value="SAVINGS">Savings</SelectItem>
-                      <SelectItem value="CREDIT_CARD">Credit Card</SelectItem>
-                      <SelectItem value="OTHER">Other</SelectItem>
+                      {accountTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
 
-                <div>
+                <div className="space-y-2">
                   <Label htmlFor="accountNumberLast4">Last 4 Digits</Label>
                   <Input
                     id="accountNumberLast4"
@@ -216,11 +261,11 @@ export default function BankAccountsPage() {
                   />
                 </div>
 
-                <div className="border-t pt-4">
-                  <h3 className="font-semibold mb-4">CSV Configuration</h3>
+                <div className="border-t pt-6">
+                  <h3 className="font-semibold mb-6">CSV Configuration</h3>
 
-                  <div className="space-y-4">
-                    <div>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
                       <Label htmlFor="delimiter">Delimiter</Label>
                       <Select
                         value={formData.csvConfig.delimiter}
@@ -245,7 +290,7 @@ export default function BankAccountsPage() {
                       </Select>
                     </div>
 
-                    <div>
+                    <div className="space-y-2">
                       <Label htmlFor="skipRows">Skip Rows (header)</Label>
                       <Input
                         id="skipRows"
@@ -265,7 +310,7 @@ export default function BankAccountsPage() {
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
-                      <div>
+                      <div className="space-y-2">
                         <Label htmlFor="dateCol">Date Column (0-indexed)</Label>
                         <Input
                           id="dateCol"
@@ -287,7 +332,7 @@ export default function BankAccountsPage() {
                         />
                       </div>
 
-                      <div>
+                      <div className="space-y-2">
                         <Label htmlFor="descCol">Description Column</Label>
                         <Input
                           id="descCol"
@@ -309,7 +354,7 @@ export default function BankAccountsPage() {
                         />
                       </div>
 
-                      <div>
+                      <div className="space-y-2">
                         <Label htmlFor="amountCol">Amount Column</Label>
                         <Input
                           id="amountCol"
@@ -332,7 +377,7 @@ export default function BankAccountsPage() {
                       </div>
                     </div>
 
-                    <div>
+                    <div className="space-y-2">
                       <Label htmlFor="dateFormat">Date Format</Label>
                       <Select
                         value={formData.csvConfig.dateFormat}
@@ -355,13 +400,58 @@ export default function BankAccountsPage() {
                           <SelectItem value="MM/DD/YYYY">MM/DD/YYYY</SelectItem>
                           <SelectItem value="DD-MM-YYYY">DD-MM-YYYY</SelectItem>
                           <SelectItem value="MM-DD-YYYY">MM-DD-YYYY</SelectItem>
+                          <SelectItem value="DD-MM-YYYY HH-mm-ss">DD-MM-YYYY HH-mm-ss</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="typeCol">Type Column (optional, for filtering)</Label>
+                      <Input
+                        id="typeCol"
+                        type="number"
+                        min="0"
+                        placeholder="e.g., 3"
+                        value={formData.csvConfig.columnMappings.type ?? ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            csvConfig: {
+                              ...formData.csvConfig,
+                              columnMappings: {
+                                ...formData.csvConfig.columnMappings,
+                                type: e.target.value ? parseInt(e.target.value) : undefined,
+                              },
+                            },
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="filterInclude">Include Types (comma-separated)</Label>
+                        <Input
+                          id="filterInclude"
+                          placeholder="e.g., CR, CREDIT"
+                          value={filterInclude}
+                          onChange={(e) => setFilterInclude(e.target.value)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="filterExclude">Exclude Types (comma-separated)</Label>
+                        <Input
+                          id="filterExclude"
+                          placeholder="e.g., DR, DEBIT"
+                          value={filterExclude}
+                          onChange={(e) => setFilterExclude(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-4">
+                <div className="flex justify-end gap-3 pt-6 border-t">
                   <Button
                     type="button"
                     variant="outline"
@@ -374,6 +464,7 @@ export default function BankAccountsPage() {
                   </Button>
                 </div>
               </form>
+              </ScrollArea>
             </DialogContent>
           </Dialog>
         </CardHeader>

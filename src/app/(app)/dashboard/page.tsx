@@ -7,7 +7,8 @@ import Link from "next/link";
 import TransactionCard from "../../components/TransactionCard";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
+import dayjs from "dayjs";
 import {
   Expense,
   DashboardMetrics,
@@ -30,6 +31,7 @@ interface MetricsResponse {
   dailyAggregates?: DailyAggregate[];
   weeklyAggregates?: WeeklyAggregate[];
   monthlyAggregates?: MonthlyAggregate[];
+  lastExpenseDate?: string | null;
 }
 
 export default function Home() {
@@ -104,13 +106,19 @@ export default function Home() {
 
   return (
     <div className="pb-12 flex w-full flex-col p-6">
-      <header className="mt-14 mb-8">
+      <header className="mb-8">
         <h1 className="text-2xl md:text-3xl">
           {getWelcomeMessage()},{" "}
           <span className="font-semibold">
             {user?.name || user?.email || "User"}
           </span>
         </h1>
+        {metrics?.lastExpenseDate && (
+          <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            Last expense: {dayjs(metrics.lastExpenseDate).format("DD MMM YYYY")}
+          </p>
+        )}
       </header>
 
       <div className="flex flex-col gap-8 w-full">
