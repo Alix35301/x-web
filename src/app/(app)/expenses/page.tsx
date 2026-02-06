@@ -180,6 +180,13 @@ const expensePage = () => {
               setPage(1);
             }}
           />
+          {dateRange?.from && dateRange?.to && expenses?.meta?.totalAmount !== undefined && (
+            <div className="col-span-2 p-3 bg-muted rounded-md">
+              <span className="text-sm text-muted-foreground">Total for selected period: </span>
+              <span className="font-semibold">RF {expenses.meta.totalAmount.toLocaleString()}</span>
+              <span className="text-sm text-muted-foreground ml-2">({expenses.meta.total} transactions)</span>
+            </div>
+          )}
         </div>
       </div>
       <Table>
