@@ -36,7 +36,9 @@ const DateRangePicker = ({
 
   const handleSelect = (range: DateRange | undefined) => {
     setInternalRange(range);
-    if (range?.from && range?.to) {
+    // Only close when from and to are different (actual range selected)
+    // or when user clicks the same date twice intentionally
+    if (range?.from && range?.to && range.from.getTime() !== range.to.getTime()) {
       onChange(range);
       setOpen(false);
     }
