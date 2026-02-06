@@ -50,12 +50,16 @@ const ExpenseForm = ({
   });
 
   useEffect(() => {
-    form.setValue("amount", data?.amount);
-    form.setValue("note", data?.note);
-    form.setValue("category_id", data?.category_id);
-    form.setValue("date", data?.date);
+    if (data) {
+      form.setValue("amount", data.amount);
+      form.setValue("note", data.note || "");
+      form.setValue("category_id", String(data.category_id || ""));
+      form.setValue("date", data.date ? new Date(data.date) : new Date());
+    } else {
+      form.reset();
+    }
     fetchCategories();
-  }, [isOpen]);
+  }, [isOpen, data]);
 
   const fetchCategories = async () => {
     const categories = await fetch("/api/categories");
