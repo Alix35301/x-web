@@ -25,7 +25,7 @@ import dayjs from "dayjs";
 import type { DateRange } from "react-day-picker";
 import ExpenseForm from "../../components/ExpenseForm";
 import ConfirmationModal from "@/components/ConfirmationModal";
-import { Trash2 } from "lucide-react";
+import { Trash2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 const expensePage = () => {
   const [expenses, setExpenses] = useState<any>([]);
@@ -38,6 +38,8 @@ const expensePage = () => {
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<string>("date");
+  const [sortOrder, setSortOrder] = useState<"ASC" | "DESC">("DESC");
 
   const fetchExpenses = async () => {
     const params = new URLSearchParams();
@@ -52,6 +54,9 @@ const expensePage = () => {
       params.set("end_date", dayjs(dateRange.to).format("YYYY-MM-DD"));
     }
 
+    params.set("sort_by", sortBy);
+    params.set("sort_order", sortOrder);
+
     const response = await fetch(`/api/expenses?${params.toString()}`);
     const data = await response.json();
     setExpenses(data);
@@ -60,7 +65,26 @@ const expensePage = () => {
   useEffect(() => {
     fetchExpenses();
     setSelectedIds(new Set());
-  }, [page, search, dateRange]);
+  }, [page, search, dateRange, sortBy, sortOrder]);
+
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === "ASC" ? "DESC" : "ASC");
+    } else {
+      setSortBy(column);
+      setSortOrder("DESC");
+    }
+    setPage(1);
+  };
+
+  const SortIcon = ({ column }: { column: string }) => {
+    if (sortBy !== column) return <ArrowUpDown className="h-4 w-4 ml-1" />;
+    return sortOrder === "ASC" ? (
+      <ArrowUp className="h-4 w-4 ml-1" />
+    ) : (
+      <ArrowDown className="h-4 w-4 ml-1" />
+    );
+  };
 
   const openEditForm = (data: any) => {
     setSelectedItem(data);
@@ -170,9 +194,33 @@ const expensePage = () => {
                 onCheckedChange={toggleSelectAll}
               />
             </TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Description</TableHead>
-            <TableHead>Amount</TableHead>
+            <TableHead
+              className="cursor-pointer select-none hover:bg-muted/50"
+              onClick={() => handleSort("date")}
+            >
+              <div className="flex items-center">
+                Date
+                <SortIcon column="date" />
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer select-none hover:bg-muted/50"
+              onClick={() => handleSort("description")}
+            >
+              <div className="flex items-center">
+                Description
+                <SortIcon column="description" />
+              </div>
+            </TableHead>
+            <TableHead
+              className="cursor-pointer select-none hover:bg-muted/50"
+              onClick={() => handleSort("amount")}
+            >
+              <div className="flex items-center">
+                Amount
+                <SortIcon column="amount" />
+              </div>
+            </TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
