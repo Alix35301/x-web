@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon } from "lucide-react";
-import { useState } from "react";
+import { CalendarIcon, X } from "lucide-react";
+import { useState, useEffect } from "react";
 import type { DateRange } from "react-day-picker";
 import dayjs from "dayjs";
 
@@ -20,11 +20,32 @@ const DateRangePicker = ({
   onChange: (range: DateRange | undefined) => void;
 }) => {
   const [open, setOpen] = useState(false);
+  const [internalRange, setInternalRange] = useState<DateRange | undefined>(value);
+
+  useEffect(() => {
+    if (!open) {
+      setInternalRange(value);
+    }
+  }, [open, value]);
 
   const formatLabel = () => {
     if (!value?.from) return "Pick a date range";
     if (!value.to) return dayjs(value.from).format("MMM D, YYYY");
     return `${dayjs(value.from).format("MMM D, YYYY")} - ${dayjs(value.to).format("MMM D, YYYY")}`;
+  };
+
+  const handleSelect = (range: DateRange | undefined) => {
+    setInternalRange(range);
+    if (range?.from && range?.to) {
+      onChange(range);
+      setOpen(false);
+    }
+  };
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onChange(undefined);
+    setInternalRange(undefined);
   };
 
   return (
@@ -36,6 +57,12 @@ const DateRangePicker = ({
         >
           <CalendarIcon className="h-4 w-4" />
           {formatLabel()}
+          {value?.from && (
+            <X
+              className="h-4 w-4 ml-1 hover:text-destructive"
+              onClick={handleClear}
+            />
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent
@@ -44,13 +71,8 @@ const DateRangePicker = ({
       >
         <Calendar
           mode="range"
-          selected={value}
-          onSelect={(range) => {
-            onChange(range);
-            if (range?.from && range?.to) {
-              setOpen(false);
-            }
-          }}
+          selected={internalRange}
+          onSelect={handleSelect}
           numberOfMonths={2}
         />
       </PopoverContent>
