@@ -34,7 +34,7 @@ const ExpenseForm = ({
 
   const expenseFormSchema = z.object({
     amount: z.coerce.number(),
-    note: z.string(),
+    description: z.string(),
     category_id: z.string(),
     date: z.date(),
   });
@@ -43,7 +43,7 @@ const ExpenseForm = ({
     resolver: zodResolver(expenseFormSchema),
     defaultValues: {
       amount: 0,
-      note: "",
+      description: "",
       category_id: "",
       date: new Date(),
     },
@@ -52,7 +52,7 @@ const ExpenseForm = ({
   useEffect(() => {
     if (data) {
       form.setValue("amount", data.amount);
-      form.setValue("note", data.note || "");
+      form.setValue("description", data.description || "");
       form.setValue("category_id", String(data.category_id || ""));
       form.setValue("date", data.date ? new Date(data.date) : new Date());
     } else {
@@ -75,10 +75,18 @@ const ExpenseForm = ({
       const url = isUpdate ? `/api/expenses/${data.id}` : "/api/expenses";
       const method = isUpdate ? "PATCH" : "POST";
 
+      const payload = {
+        name: formData.description.substring(0, 50),
+        description: formData.description,
+        amount: Number(formData.amount),
+        category_id: formData.category_id,
+        date: formData.date.toISOString(),
+      };
+
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -135,12 +143,12 @@ const ExpenseForm = ({
 
           <FormField
             control={form.control}
-            name="note"
+            name="description"
             render={({ field }) => (
               <FormItem>
-                <Label>Note</Label>
+                <Label>Description</Label>
                 <FormControl>
-                  <Input type="text" placeholder="Note" {...field} />
+                  <Input type="text" placeholder="Description" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
